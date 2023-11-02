@@ -31,5 +31,8 @@ rm -f terraform.tfstate terraform.tfstate.backup
 # Initialise terraform - this can't be in the Dockerfile because the subdirectory we want to init is not known at build time.
 terraform init
 
+# Create any initial resources specified by the file "initial_state.tf"
+terraform apply -auto-approve
+
 # Leave the shell open to further commands
 /bin/sh
