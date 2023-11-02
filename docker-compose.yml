@@ -6,6 +6,7 @@ services:
     image: "ghcr.io/skiller-whale/learnersync"
     environment:
       SERVER_URL: "https://train.skillerwhale.com/"
+      SW_RUNNING_IN_HOSTED_ENV:
       WATCHER_BASE_PATH: "/app/exercises"
       ATTENDANCE_ID_FILE: "/app/sync/attendance_id"
       WATCHED_EXTS: "tf tfstate info"
