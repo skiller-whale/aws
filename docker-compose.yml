@@ -26,6 +26,12 @@ services:
     profiles: ["aws-cli"] # Only run this when targetting explicitly
     volumes:
       - aws_credentials:/root/.aws:ro
+  aws-cli:
+    image: amazon/aws-cli
+    entrypoint: ["/bin/bash"] # We may want to expand this into its own dockerfile in order to prepopulate AMI ids using CLI commands.
+    profiles: ["aws-cli-interactive"] # Only run this when targetting explicitly
+    volumes:
+      - aws_credentials:/root/.aws:ro
   aws_credentials:
     build: ./aws_credential_service
     volumes:
