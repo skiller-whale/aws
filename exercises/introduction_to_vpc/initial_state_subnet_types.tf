@@ -1,10 +1,17 @@
+#################################
+# DO NOT MODIFY THIS FILE
+# This file contains terraform to set up the account for the exercises.
+#################################
+
 locals {
-  name        = "exercise2"
+  name        = "subnet-types"
   cidr_prefix = "172.21"
 }
 
+data "aws_region" "current" {}
+
 ###########################
-# Exercise 2 - Subnet types
+# Exercise 2 - Subnet Types
 ###########################
 
 # VPC
@@ -43,18 +50,6 @@ resource "aws_route_table" "igw" {
 }
 
 # Subnets
-
-resource "aws_subnet" "nat" {
-  vpc_id     = aws_vpc.this.id
-  cidr_block = "${local.cidr_prefix}.0.0/22"
-
-  availability_zone = "eu-west-1a"
-
-  tags = {
-    Name = "${local.name}-nat"
-    Tier = "nat"
-  }
-}
 
 resource "aws_subnet" "subnet_1" {
   vpc_id            = aws_vpc.this.id
@@ -96,11 +91,6 @@ resource "aws_subnet" "subnet_4" {
   }
 }
 
-resource "aws_route_table_association" "nat_to_igw" {
-  subnet_id      = aws_subnet.nat.id
-  route_table_id = aws_route_table.igw.id
-}
-
 resource "aws_route_table_association" "subnet_1_to_igw" {
   subnet_id      = aws_subnet.subnet_1.id
   route_table_id = aws_route_table.igw.id
@@ -111,7 +101,26 @@ resource "aws_route_table_association" "subnet_4_to_igw" {
   route_table_id = aws_route_table.igw.id
 }
 
-# # The NAT gateway
+######################################
+# The NAT gateway
+######################################
+
+resource "aws_subnet" "nat" {
+  vpc_id     = aws_vpc.this.id
+  cidr_block = "${local.cidr_prefix}.0.0/22"
+
+  availability_zone = "eu-west-1a"
+
+  tags = {
+    Name = "${local.name}-subnet-nat"
+    Tier = "nat"
+  }
+}
+
+resource "aws_route_table_association" "nat_to_igw" {
+  subnet_id      = aws_subnet.nat.id
+  route_table_id = aws_route_table.igw.id
+}
 
 resource "aws_eip" "nat_gateway" {
   domain = "vpc"
@@ -146,8 +155,6 @@ resource "aws_route" "nat_gateway" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.this.id
 }
-
-# The private subnets
 
 resource "aws_route_table_association" "subnet_3_to_nat" {
   subnet_id      = aws_subnet.subnet_3.id
