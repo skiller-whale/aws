@@ -70,7 +70,7 @@
 # Step 5 - Isolated Subnet
 ###################################
 
-# resource "aws_subnet" "isolated_subnet_a" {
+# resource "aws_subnet" "isolated_a" {
 #   vpc_id = aws_vpc.vpc.id
 
 #   cidr_block = "172.20.32.0/22" # 1024 addresses - This is the 8th possible /22 subnet in the VPC
@@ -85,7 +85,7 @@
 # Step 6 - Private Subnet & NAT Gateway
 ###################################
 
-# resource "aws_subnet" "private_subnet_a" {
+# resource "aws_subnet" "private_a" {
 #   vpc_id = aws_vpc.vpc.id
 
 #   cidr_block = "172.20.64.0/22" # 1024 addresses - This is the 16th possible /22 subnet in the VPC
@@ -106,7 +106,7 @@
 
 #   # TODO 1 - only one of the two lines below is correct - choose one and uncomment it:
 #   # subnet_id = aws_subnet.public_a.id # Option 1 - Deploy the NAT gateway in the public subnet
-#   # subnet_id = aws_subnet.private_subnet_a.id # Option 2 -Deploy the NAT gateway in the private subnet
+#   # subnet_id = aws_subnet.private_a.id # Option 2 -Deploy the NAT gateway in the private subnet
 #
 #   tags = {
 #     Name = "my-own-vpc-nat-a"
@@ -118,7 +118,7 @@
 ###################################
 
 # # We need the extra route table because we want each AZ (and therefore, each subnet) to have its own NAT gateway.
-# resource "aws_route_table" "private_subnet_a" {
+# resource "aws_route_table" "private_a_to_nat" {
 
 #   vpc_id = aws_vpc.vpc.id
 #   # Route all traffic out through the NAT gateway - the route table for the public subnets will then route it through the internet gateway.
@@ -135,5 +135,5 @@
 # # TODO 3 - Add the appropriate route table association to link the private subnet to the route table.
 
 ###################################
-# Step 7 - Create a second private subnet, in eu-west-1b
+# OPTIONAL - Step 8 - Create a second private subnet, in eu-west-1b
 ###################################
