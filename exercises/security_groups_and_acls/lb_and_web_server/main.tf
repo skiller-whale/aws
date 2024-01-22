@@ -87,7 +87,7 @@ resource "aws_instance" "webapp" {
   count = var.instance_count
 
   ami = data.aws_ami.ubuntu.id
-  user_data = file("user-data.sh")
+  user_data = file("${path.module}/user-data.sh")
 
   instance_type = "t2.micro"
 
