@@ -16,14 +16,33 @@ fi
 # Export the attendance id as an environment variable so that terraform can use it
 export TF_VAR_attendance_id
 
-if [ $# -eq 0 ]
-  then
-    echo "No module_key supplied - please run 'docker compose exec terraform setup <module_key>' to open a shell in the relevant exercise directory."
+# Read the module key from the file /root/.sw_module_key
+SW_MODULE_KEY = $(cat /root/.sw_module_key)
+
+# If the module key was manually supplied, and we don't have SW_MODULE_KEY set, then use the manual one.
+if
+    [ -n $1 ] && [ -z $SW_MODULE_KEY ];
+then
+    SW_MODULE_KEY=$1
+# If both are set, use the manual one, but output a warning if they are different,
+elif
+    [ -n $1 ] && [ -n $SW_MODULE_KEY ];
+then
+    if [ $1 != $SW_MODULE_KEY ];
+    then
+        echo "Warning: module_key supplied manually ($1) does not match the one found using the attendance_id ($SW_MODULE_KEY). Using the manually supplied one."
+    fi
+    SW_MODULE_KEY=$1
+# If neither are set, error
+elif
+    [ -z $1 ] && [ -z $SW_MODULE_KEY ];
+then
+    echo "No module_key supplied, and could not find one based on attendance ID - please run 'docker compose exec terraform setup <module_key>' to open a shell in the relevant exercise directory."
     exit 1
 fi
 
-# Change to the directory passed as the first argument, which should be the relevant exercise directory
-cd "exercises/$1"
+# Change to the relevant exercise directory
+cd "exercises/$SW_MODULE_KEY"
 
 # If there is existing state, delete it. Any state that is there should be from a previous session, and so will be obsolete as the AWS account will probably be different, and definitely cleared up.
 rm -f terraform.tfstate terraform.tfstate.backup

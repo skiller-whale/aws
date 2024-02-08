@@ -100,6 +100,8 @@ def main(base_dir='/root/.aws'):
         logging.error('Could not find attendance id in attendance_id file. Please add your attendance id to the file and try again.')
         return False
 
+    # TODO: Clear the module key
+
     # Make api call to allocate an account and get credentials.
     account_allocation = allocate_aws_account(attendance_id)
 
@@ -114,6 +116,8 @@ def main(base_dir='/root/.aws'):
 
     # Write the credentials (and config) to files.
     return write_credentials_to_file(account_allocation['credentials'], base_dir)
+
+    # TODO - also get the module keys - if there are more than one - revert to manual module key entry - this shouldn't happen though. If there is just one, write it to a file.
 
 if __name__ == '__main__':
     if main():
