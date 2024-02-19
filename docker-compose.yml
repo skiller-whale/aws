@@ -1,7 +1,7 @@
 version: "3.7"
 volumes:
   aws_credentials:
-  sw_module_key:
+  session_info:
 services:
   sync:
     image: "ghcr.io/skiller-whale/learnersync"
@@ -24,7 +24,7 @@ services:
       - ./exercises:/app/exercises
       - ./attendance_id:/app/attendance_id:ro
       - aws_credentials:/root/.aws:ro
-      - sw_module_key:/root/.sw_module_key:ro
+      - session_info:/app/.session_info:ro
     depends_on:
       aws_credentials:
         condition: service_completed_successfully
@@ -45,4 +45,4 @@ services:
     volumes:
       - ./attendance_id:/app/attendance_id:ro
       - aws_credentials:/root/.aws
-      - sw_module_key:/root/.sw_module_key:ro
+      - session_info:/root/.session_info

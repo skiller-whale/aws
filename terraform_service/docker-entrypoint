@@ -13,27 +13,9 @@ then
     exit 1
 fi
 
-# Export the attendance id as an environment variable so that terraform can use it
-export TF_VAR_attendance_id
-
-# Read the module key from the file /root/.sw_module_key
-SW_MODULE_KEY = $(cat /root/.sw_module_key)
-
-# If the module key is there, we can initialise the terraform in the relevant directory, otherwise, we need to ensure the user knows to run the setup command.
-if [ -n $SW_MODULE_KEY ];
-then
-    cd "exercises/$SW_MODULE_KEY"
-
-    # If there is existing state, delete it. Any state that is there should be from a previous session, and so will be obsolete as the AWS account will probably be different, and definitely cleared up.
-    rm -f terraform.tfstate terraform.tfstate.backup
-
-    # Initialise terraform - this can't be in the Dockerfile because the subdirectory we want to init is not known at build time.
-    terraform init
-
-    # Create any initial resources specified by the file "initial_state.tf"
-    terraform apply -auto-approve
-else
-    echo "Could not find module key - please run 'docker compose exec terraform setup <module_key>' to open a shell in the relevant exercise directory."
-fi
+# This is the default from compose - we just ensure the image is downloaded and the attendance id set.
+# We could init the terraform here now we know the module, but then the script is duplicated, and the output from docker compose up is cluttered.
+echo "Terraform container created and attendance id validated.
+        Run the command: 'docker compose exec terraform setup' to setup Terraform in the right exercise directory."
 
 tail -f /dev/null # Keep the container open

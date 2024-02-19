@@ -3,6 +3,15 @@
 # Exit immediately if any command exits with a non-zero status.
 set -e
 
+if [ $# -lt 1 ]; then
+  echo "$0: No module_key supplied - please run 'docker compose exec terraform setup <module_key>' to open a shell in the relevant exercise directory."
+  exit 2
+elif [ $# -eq 1 ]; then
+  SW_MODULE_KEY=$1
+elif [ $# -gt 1 ]; then
+  echo "$0: too many arguments"; exit 2
+fi
+
 # Read the attendance id from the file `attendance_id`
 TF_VAR_attendance_id=$(cat ./attendance_id)
 
@@ -15,31 +24,6 @@ fi
 
 # Export the attendance id as an environment variable so that terraform can use it
 export TF_VAR_attendance_id
-
-# Read the module key from the file /root/.sw_module_key
-SW_MODULE_KEY = $(cat /root/.sw_module_key)
-
-# If the module key was manually supplied, and we don't have SW_MODULE_KEY set, then use the manual one.
-if
-    [ -n $1 ] && [ -z $SW_MODULE_KEY ];
-then
-    SW_MODULE_KEY=$1
-# If both are set, use the manual one, but output a warning if they are different,
-elif
-    [ -n $1 ] && [ -n $SW_MODULE_KEY ];
-then
-    if [ $1 != $SW_MODULE_KEY ];
-    then
-        echo "Warning: module_key supplied manually ($1) does not match the one found using the attendance_id ($SW_MODULE_KEY). Using the manually supplied one."
-    fi
-    SW_MODULE_KEY=$1
-# If neither are set, error
-elif
-    [ -z $1 ] && [ -z $SW_MODULE_KEY ];
-then
-    echo "No module_key supplied, and could not find one based on attendance ID - please run 'docker compose exec terraform setup <module_key>' to open a shell in the relevant exercise directory."
-    exit 1
-fi
 
 # Change to the relevant exercise directory
 cd "exercises/$SW_MODULE_KEY"
