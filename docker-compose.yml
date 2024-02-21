@@ -1,6 +1,7 @@
 version: "3.7"
 volumes:
   aws_credentials:
+  session_info:
 services:
   sync:
     image: "ghcr.io/skiller-whale/learnersync"
@@ -14,12 +15,19 @@ services:
     volumes:
       - ./exercises:/app/exercises:ro
       - ./attendance_id:/app/sync/attendance_id:ro
+    depends_on:
+      aws_credentials:
+        condition: service_completed_successfully
   terraform:
     build: ./terraform_service
     volumes:
       - ./exercises:/app/exercises
       - ./attendance_id:/app/attendance_id:ro
       - aws_credentials:/root/.aws:ro
+      - session_info:/app/.session_info:ro
+    depends_on:
+      aws_credentials:
+        condition: service_completed_successfully
     stop_signal: SIGKILL
   aws:
     image: amazon/aws-cli
@@ -37,3 +45,4 @@ services:
     volumes:
       - ./attendance_id:/app/attendance_id:ro
       - aws_credentials:/root/.aws
+      - session_info:/root/.session_info

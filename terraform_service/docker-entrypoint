@@ -13,8 +13,9 @@ then
     exit 1
 fi
 
-# This is the default from compose - at that point we don't know the specific module, so we just ensure the image is downloaded and the attendance id set.
+# This is the default from compose - we just ensure the image is downloaded and the attendance id set.
+# We could init the terraform here now we know the module, but then the script is duplicated, and the output from docker compose up is cluttered.
 echo "Terraform container created and attendance id validated.
-        Use 'docker compose exec terraform setup <module_key>' to open a shell in the relevant exercise directory."
+        Run the command: 'docker compose exec terraform setup_auto' to setup Terraform in the right exercise directory."
 
 tail -f /dev/null # Keep the container open
