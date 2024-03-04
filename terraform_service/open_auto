@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# Exit immediately if any command exits with a non-zero status.
+set -e
+
+if [ $# -gt 0 ]; then
+  echo "$0: too many arguments - to specify a module key manually, please use 'docker compose exec terraform open <module_key>'"
+  exit 2
+fi
+
+# Read the attendance id from the file `attendance_id`
+attendance_id=$(cat ./attendance_id)
+
+# This file is written by aws_credential_service, which gets it from the app based on the attendance ID - it is stored under attendance id to prevent accidental reuse of old module keys.
+if [ -f "./.session_info/$attendance_id/sw_module_key" ]; then
+    SW_MODULE_KEY=$(cat ./.session_info/$attendance_id/sw_module_key)
+else
+    # If we haven't got the module key automatically, we can't continue - the user must supply it manually.
+    echo "No module_key supplied, and could not find one based on attendance ID - please run 'docker compose exec terraform open <module_key>' to open a shell in the relevant exercise directory."
+    exit 1
+fi
+
+echo "Using module key: $SW_MODULE_KEY"
+
+# Now we have the module key, run the setup as before
+./open $SW_MODULE_KEY
