@@ -6,8 +6,17 @@ resource "aws_cloudwatch_log_group" "this" {
 data "aws_iam_policy_document" "cloudwatch" {
   statement {
     effect = "Allow"
-    # [...]
+    actions = [
+      "logs:DeleteLogGroup",
+    ]
+    resources = ["${aws_cloudwatch_log_group.this.arn}"]
   }
+
+  # A new statement for you to complete
+  # statement {
+  #   effect = "Allow"
+  #   [...]
+  # }
 }
 
 resource "aws_iam_policy" "cloudwatch" {

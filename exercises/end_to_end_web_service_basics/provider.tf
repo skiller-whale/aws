@@ -15,13 +15,13 @@ terraform {
 }
 
 provider "aws" {
-  region = "eu-west-1"
+  region  = "eu-west-1"
 
   default_tags {
     tags = {
       Purpose       = "Learner Created Exercise Resource"
-      CurriculumKey = "ec2"
-      ModuleKey     = "iam"
+      CurriculumKey = "containerised_web_services"
+      ModuleKey     = "end_to_end_web_service_basics"
       CreatedBy     = var.attendance_id
       CreatedWith   = "Terraform"
     }

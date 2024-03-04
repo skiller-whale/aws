@@ -4,7 +4,7 @@
 set -e
 
 if [ $# -lt 1 ]; then
-  echo "$0: No module_key supplied - please run 'docker compose exec terraform setup <module_key>' to open a shell in the relevant exercise directory."
+  echo "$0: No module_key supplied - please run 'docker compose exec terraform open <module_key>' to open a shell in the relevant exercise directory."
   exit 2
 elif [ $# -eq 1 ]; then
   SW_MODULE_KEY=$1
@@ -27,18 +27,6 @@ export TF_VAR_attendance_id
 
 # Change to the relevant exercise directory
 cd "exercises/$SW_MODULE_KEY"
-
-# If there is existing state, delete it. Any state that is there should be from a previous session, and so will be obsolete as the AWS account will probably be different, and definitely cleared up.
-rm -f terraform.tfstate terraform.tfstate.backup
-
-# Initialise terraform - this can't be in the Dockerfile because the subdirectory we want to init is not known at build time.
-terraform init
-
-# Do not exit if there are errors after this point - they are likely to be resolvable terraform errors, and rerunning this script will make them worse.
-set +e
-
-# Create any initial resources specified by the file "initial_state.tf"
-terraform apply -auto-approve
 
 # Leave the shell open to further commands
 /bin/sh
