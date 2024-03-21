@@ -33,14 +33,15 @@ resource "aws_iam_role_policy_attachment" "execution_role_managed_policy_attachm
 # Manual Policy - TODO - uncomment and finish
 ###################################
 
-# data "aws_iam_policy_document" "execution_role_policy" {
+# data "aws_iam_policy_document" "execution_role_policy_document" {
 #   statement {
 #     effect = "Allow"
 #     actions = [
 #       # TODO: Get these from the managed policy
 #     ]
-#     resources = "*" # TODO replace this - either absolute, or - data.aws_ecr_repository.shared.arn
+#     resources = ["*"]
 #   }
+#   # TODO: Add more statements as needed
 # }
 
 # # These are Terraform blocks that turn what you've written above into a policy and attach it to the role.

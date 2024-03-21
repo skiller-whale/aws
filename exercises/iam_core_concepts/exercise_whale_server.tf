@@ -6,7 +6,8 @@
 resource "aws_ecs_task_definition" "this" {
   family                   = "whale-app"
 
-  # task_role_arn            = aws_iam_role.task_role.arn #TODO - Uncomment - this links the task to a role it can use to perform AWS actions.
+  # #TODO 1 - Uncomment - this links the task to a role it can use to perform AWS actions.
+  # task_role_arn            = aws_iam_role.task_role.arn
 
   container_definitions = jsonencode([
     {
@@ -43,21 +44,39 @@ resource "aws_ecs_task_definition" "this" {
 # Task Role & Assume Role Policy
 #################################
 
+# # TODO 2 - Uncomment this section
+
 # # This creates the role, and specifies the Terraform block containing the assume role policy (AKA the trust policy).
 # resource "aws_iam_role" "task_role" {
 #   name = "whale-task-role"
-#   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+#   assume_role_policy = data.aws_iam_policy_document.trust_policy.json
 # }
 
-# data "aws_iam_policy_document" "assume_role_policy" {
+# data "aws_iam_policy_document" "trust_policy" {
 #   statement {
 #     effect = "Allow"
 
+#     # TODO 3 - choose the appropriate action for a trust policy
 #     actions = [
-#       # TODO - decide on these
+#       "Replace with correct action"
 #     ]
 
-#     # TODO - Add a resources or principals block
+#     # TODO 4 - uncomment the correct block for the trust policy
+
+#     ## OPTION 1
+#     # principals {
+#     #   type        = "Service"
+#     #   identifiers = ["secretsmanager.amazonaws.com"]
+#     # }
+
+#     ## OPTION 2
+#     # principals {
+#     #   type        = "Service"
+#     #   identifiers = ["ecs-tasks.amazonaws.com"]
+#     # }
+
+#     ## OPTION 3
+#     # resources = [aws_secretsmanager_secret.whale_app_secret.arn]
 #   }
 # }
 
@@ -65,16 +84,28 @@ resource "aws_ecs_task_definition" "this" {
 # Secrets Manager IAM Policy
 #################################
 
-# # TODO - add the policy to talk to secrets manager
-# # Questions we can ask - do you think we need to grant any list actions? No, because it's a service and we know exactly what we want. Could also trigger this with "why not reuse the existing policy?"
+# # TODO 5 - Uncomment this section (to the end of the file)
 
 # data "aws_iam_policy_document" "allow_secret_access" {
 #   statement {
 #     effect = "Allow"
 #     actions = [
-#       # TODO - decide on these
+#       "secretsmanager:GetSecretValue"
 #     ]
-#     # TODO - Add a resources or principals block
+
+#     # TODO 6 - uncomment the correct block so the ECS task can access the secret.
+
+#     ## OPTION 1
+#     # principals {
+#     #   type        = "Service"
+#     #   identifiers = ["secretsmanager.amazonaws.com"]
+#     # }
+
+#     ## OPTION 2
+#     # resources = ["*"]
+
+#     ## OPTION 3
+#     # resources = [aws_secretsmanager_secret.whale_app_secret.arn]
 #   }
 # }
 
@@ -87,6 +118,3 @@ resource "aws_ecs_task_definition" "this" {
 #   role       = aws_iam_role.task_role.name
 #   policy_arn = aws_iam_policy.allow_secret_access.arn
 # }
-
-# Solution - expectation from learners is just to make it work.
-# Optional is to ensure the policy is limited just to the secret it needs.
