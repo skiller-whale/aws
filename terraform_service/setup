@@ -25,14 +25,28 @@ fi
 # Export the attendance id as an environment variable so that terraform can use it
 export TF_VAR_attendance_id
 
+# This file is written by aws_credential_service - it's needed because the S3 buckets are named by account ID for global uniqueness, and so we need to know the account ID to access the state.
+if [ -f "./.session_info/$TF_VAR_attendance_id/aws_account_id" ]; then
+    AWS_ACCOUNT_ID=$(cat ./.session_info/$TF_VAR_attendance_id/aws_account_id)
+else
+    # If we haven't got the aws_account_id we can't continue - in theory we could revert to local state, but that gets too complicated.
+    echo "Could not find aws_account_id - check if aws_credential_service has run successfully."
+    exit 1
+fi
+
+echo "Using AWS account ID: $AWS_ACCOUNT_ID"
+
 # Change to the relevant exercise directory
 cd "exercises/$SW_MODULE_KEY"
 
-# If there is existing state, delete it. Any state that is there should be from a previous session, and so will be obsolete as the AWS account will probably be different, and definitely cleared up.
-rm -f terraform.tfstate terraform.tfstate.backup
-
 # Initialise terraform - this can't be in the Dockerfile because the subdirectory we want to init is not known at build time.
-terraform init
+terraform init \
+ -backend-config="bucket=skw-learner-$AWS_ACCOUNT_ID-tfstate" \
+ -backend-config="key=$TF_VAR_attendance_id" \
+ -reconfigure
+# If init has been run in this directory before with a different backend config (i.e. attendance_id),
+# then the -reconfigure argument tells Terraform to ignore the previous config.
+# Without this, Terraform would ask if you wanted to migrate the old state, which is not what we want, especially as the old state has probably been nuked with the rest of the account.
 
 # Do not exit if there are errors after this point - they are likely to be resolvable terraform errors, and rerunning this script will make them worse.
 set +e

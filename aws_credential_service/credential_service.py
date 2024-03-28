@@ -82,12 +82,7 @@ def write_credentials_to_file(credentials, base_dir):
 
     return True
 
-def write_module_key_to_file(account_allocation_response, session_info_dir, attendance_id):
-
-    # Create the attendance_id directory - using the attendance_id as the directory name to prevent reuse of old module keys that would hang around in the volume.
-    attendance_id_dir = os.path.join(session_info_dir, attendance_id)
-    os.makedirs(attendance_id_dir, exist_ok=True)
-
+def get_module_key_to_write(account_allocation_response):
     session = account_allocation_response.get('session', {})
     module_keys = session.get('module_keys', [])
 
@@ -101,21 +96,36 @@ def write_module_key_to_file(account_allocation_response, session_info_dir, atte
         )
     elif len(module_keys) < 1:
         logging.warning('No module key found - you will need to enter the module key manually.')
-        return False
+        return None
 
     # Strip the module key out of "curriculum_key/module_key" format
     module_key = module_keys[0].split('/')[1]
+    return module_key
 
-    module_key_file = os.path.join(attendance_id_dir, 'sw_module_key')
+def get_account_id_to_write(account_allocation_response):
+    account_allocation = account_allocation_response.get('account_allocation', {})
+    return account_allocation.get('aws_account_number', None)
 
-    try:
-        with open(module_key_file, 'w') as f:
-            f.write(module_key)
-    except Exception as e:
-        logging.error('Error writing out module key file: %s', e)
+def write_session_info_to_file(session_info_dir, attendance_id, session_info_key, session_info_value):
+    # If the session_info_value is none, return False
+    if not session_info_value:
+        logging.warning('No %s value found - skipping writing to file', session_info_key)
         return False
 
-    logging.info('Module key file written out successfully')
+    # Create the attendance_id directory - using the attendance_id as the directory name to prevent reuse of old module keys that would hang around in the volume.
+    attendance_id_dir = os.path.join(session_info_dir, attendance_id)
+    os.makedirs(attendance_id_dir, exist_ok=True)
+
+    session_info_key_file = os.path.join(attendance_id_dir, session_info_key)
+
+    try:
+        with open(session_info_key_file, 'w') as f:
+            f.write(session_info_value)
+    except Exception as e:
+        logging.error('Error writing out %s file: %s', session_info_key, e)
+        return False
+
+    logging.info('%s file written out successfully', session_info_key)
 
     return True
 
@@ -141,10 +151,10 @@ def main(base_dir='/root'):
     # Make api call to allocate an account and get credentials.
     account_allocation_response  = allocate_aws_account(attendance_id)
 
-    account_allocation = account_allocation_response['account_allocation']
-
-    if not account_allocation:
+    if not account_allocation_response:
         return False
+
+    account_allocation = account_allocation_response['account_allocation']
 
     logging.info("""Account allocated successfully.
                     Account ID: %s
@@ -156,11 +166,18 @@ def main(base_dir='/root'):
     aws_base_dir = os.path.join(base_dir, '.aws')
     write_credentials_success = write_credentials_to_file(account_allocation['credentials'], aws_base_dir)
 
-    # Get the module keys and write the first one to file. If there is more than one, warn the user.
+    # Create a directory for additional session info needed by other services.
     session_info_base_dir = os.path.join(base_dir, '.session_info')
-    write_module_key_success = write_module_key_to_file(account_allocation_response, session_info_base_dir, attendance_id)
 
-    return write_credentials_success and write_module_key_success
+    # Get the module keys and write the first one to file. If there is more than one, warn the user.
+    module_key = get_module_key_to_write(account_allocation_response)
+    write_module_key_success = write_session_info_to_file(session_info_base_dir, attendance_id, 'sw_module_key', module_key)
+
+    # Write the account ID to a file
+    account_id = get_account_id_to_write(account_allocation_response)
+    write_account_id_success = write_session_info_to_file(session_info_base_dir, attendance_id, 'aws_account_id', account_id)
+
+    return write_credentials_success and write_module_key_success and write_account_id_success
 
 if __name__ == '__main__':
     if main():
