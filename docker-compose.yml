@@ -4,13 +4,13 @@ volumes:
   session_info:
 services:
   sync:
-    image: "ghcr.io/skiller-whale/learnersync"
+    image: "ghcr.io/skiller-whale/learnersync:0.2.1"
     environment:
       SERVER_URL: "https://train.skillerwhale.com/"
       SW_RUNNING_IN_HOSTED_ENV:
       WATCHER_BASE_PATH: "/app/exercises"
       ATTENDANCE_ID_FILE: "/app/sync/attendance_id"
-      WATCHED_EXTS: "tf"
+      WATCHED_EXTS: .tf
       IGNORE_DIRS: ".git .terraform"
     volumes:
       - ./exercises:/app/exercises:ro
