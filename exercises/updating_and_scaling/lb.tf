@@ -41,7 +41,7 @@ resource "aws_lb_target_group" "this" {
   target_type = "ip"
   vpc_id      = aws_vpc.this.id
 
-  deregistration_delay = 60
+  deregistration_delay = 15
 
   lifecycle {
     create_before_destroy = true

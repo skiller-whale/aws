@@ -26,6 +26,31 @@ resource "aws_ecs_service" "service_customer1" {
   force_new_deployment               = true
 }
 
+# Add Autoscaling to the ECS Service
+resource "aws_appautoscaling_target" "ecs_service_customer1" {
+  max_capacity       = 4
+  min_capacity       = 2
+  resource_id        = "service/${aws_ecs_cluster.this.name}/${aws_ecs_service.service_customer1.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "ecs_service_customer1" {
+  name               = "customer1"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs_service_customer1.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_service_customer1.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_service_customer1.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    target_value = 30.0
+  }
+}
+
 resource "aws_ecs_service" "service_customer2" {
   name            = "${local.app_name}-service-customer2"
   cluster         = aws_ecs_cluster.this.id
