@@ -1,10 +1,12 @@
-# Skiller Whale AWS Exercise Repository
+# SkillerWhale AWS Exercise Repository
+
+This repository contains exercises for SkillerWhale sessions on AWS.
 
 ## Example Setup Instructions
 
 - Ensure you have the latest version of this `https://github.com/skiller-whale/aws.git` git repository.
 - Replace the contents of the `attendance_id` file in this repo, so that it just
-  contains your unique id for the session.
+  contains your attendance id for the session.
 - Open a terminal in the `aws` directory.
 - In the terminal, run `docker compose up --build` (DO NOT use `-d`, because you need to see the logs).
   This will start syncing any changes you make to the exercise files and obtain AWS credentials for you.
