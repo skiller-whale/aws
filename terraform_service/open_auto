@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# This script can be used by learners if they accidentally exit their terraform shell.
+# It will re-open the shell, with the right credentials and variables, without re-running terraform init.
+
 # Exit immediately if any command exits with a non-zero status.
 set -e
 
